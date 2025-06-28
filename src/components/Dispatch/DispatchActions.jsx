@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import Input from '../inputs/input';
+import Input from '../inputs/Input';
 
 const DispatchActions = ({ dispatch, onSubmitVehicleDetails }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
