@@ -5,7 +5,7 @@ import {
   Route,
   Navigate
 } from "react-router";
-import Login from "./pages/Auth/login";
+import Login from "./pages/Auth/Login";
 import Home from "./pages/Dashboard/Home";
 import EALIssuance from "./pages/Dashboard/EALIssuance";
 import EALUsage from "./pages/Dashboard/EALUsage";
