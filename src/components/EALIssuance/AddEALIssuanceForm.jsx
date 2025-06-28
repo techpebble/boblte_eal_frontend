@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import Input from '../inputs/input';
+import Input from '../inputs/Input';
 import Select from '../inputs/Select';
 import { API_PATHS } from '../../utils/apiPaths';
 import axiosInstance from '../../utils/axiosInstance';
