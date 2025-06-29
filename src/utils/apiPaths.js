@@ -1,4 +1,4 @@
-export const BASE_URL = "https://boblte-eal.onrender.com";
+export const BASE_URL = "https://boblte-eal-api.techpebble.com";
 
 //utils/apiPaths.js
 export const API_PATHS = {
