@@ -568,11 +568,9 @@ const Dispatch = () => {
                         <td className="p-3 text-right text-gray-800">{itemEntry.quantityInCases}</td>
                         <td className="p-3 text-right text-gray-800">{itemEntry.EALIssuedQuantity || 0}</td>
                         <td className="p-3 text-center">
-                          {dispatchData.status === 'final' && (
-                            <button onClick={() => openEALModal(itemEntry)} className="text-sm text-blue-600 hover:underline">
-                              {itemEntry.EALIssuedQuantity < itemEntry.quantityInCases ? 'Link EAL' : 'Unlink EAL'}
-                            </button>
-                          )}
+                          <button onClick={() => openEALModal(itemEntry)} className="text-sm text-blue-600 hover:underline">
+                            {itemEntry.EALIssuedQuantity < itemEntry.quantityInCases ? 'Link EAL' : 'Unlink EAL'}
+                          </button>
                         </td>
                       </tr>
                     ))}
@@ -637,12 +635,13 @@ const Dispatch = () => {
                 {selectedItem.EALLinks.map((link, index) => (
                   <li key={index} className="border rounded-lg p-3 flex justify-between items-center bg-gray-50">
                     <div>
-                      <div className="font-medium text-sm">Serials: {link.prefix + link.serialFrom.toString().padStart(10, '0')} &rarr; {link.prefix + link.serialTo.toString().padStart(10, '0')}</div>
+                      <div className="font-medium text-sm">Prefix: {link.prefix}</div>
+                      <div className="font-medium text-sm">Serials: {link.serialFrom.toString().padStart(10, '0')} &rarr; {link.serialTo.toString().padStart(10, '0')}</div>
                       <div className="text-xs text-gray-500">Used: {(link.serialTo - link.serialFrom + 1) / selectedItem?.item?.bottlesPerCase}</div>
                     </div>
-                    <button onClick={() => setUnlinkCandidate(link)} className="text-red-500 hover:underline text-xs">
+                    {dispatchData.status === 'final' && <button onClick={() => setUnlinkCandidate(link)} className="text-red-500 hover:underline text-xs">
                       Unlink
-                    </button>
+                    </button>}
                   </li>
                 ))}
               </ul>
