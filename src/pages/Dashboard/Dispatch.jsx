@@ -26,6 +26,10 @@ const Dispatch = () => {
 
   // State for controlling the "Submit the Vehcile Details" modal
   const [openDispatchModalLoad, setopenDispatchModalLoad] = useState(false);
+
+  const [linkDispatchModalOpen, setLinkDispatchModalOpen] = useState(false);
+  const [linkDispatchDetailsData, setLinkDispatchDetailsData] = useState(null);
+
   const [vehicleData, setVehicleData] = useState({
     vehicleNumber: '',
     driverName: '',
@@ -152,8 +156,10 @@ const Dispatch = () => {
    * @param {Object} details - The dispatch object to be edited.
    */
   const editDispatchDetails = (details) => {
-    setDispatchData(details);
-    setOpenDispatchModalAdd(true);
+    if (details.status == 'draft') {
+      setDispatchData(details);
+      setOpenDispatchModalAdd(true);
+    }
   };
 
   /**
@@ -284,7 +290,8 @@ const Dispatch = () => {
    * @param {Object} details - The dispatch details to be linked.
    */
   const linkDispatchDetails = (details) => {
-    console.log('Link dispatch details:', details);
+    setLinkDispatchDetailsData(details);
+    setLinkDispatchModalOpen(true);
     // This function can be expanded to handle specific linking logic, e.g., for external systems.
   };
 
@@ -578,9 +585,9 @@ const Dispatch = () => {
                         <td className="p-3 text-right text-gray-800">{itemEntry.quantityInCases}</td>
                         <td className="p-3 text-right text-gray-800">{itemEntry.EALIssuedQuantity || 0}</td>
                         <td className="p-3 text-center">
-                          <button onClick={() => openEALModal(itemEntry)} className="text-sm text-blue-600 hover:underline">
+                          {dispatchData.status == 'final' && <button onClick={() => openEALModal(itemEntry)} className="text-sm text-blue-600 hover:underline">
                             {itemEntry.EALIssuedQuantity < itemEntry.quantityInCases ? 'Link EAL' : 'Unlink EAL'}
-                          </button>
+                          </button>}
                         </td>
                       </tr>
                     ))}
@@ -813,6 +820,105 @@ const Dispatch = () => {
           </div>
         </Modal>
         
+        <Modal
+          isOpen={linkDispatchModalOpen}
+          onClose={() => {
+            setLinkDispatchModalOpen(false);
+            setLinkDispatchDetailsData(null);
+          }}
+          title="Link Dispatch Details"
+          styleClass="w-full max-w-4xl"
+        >
+          {linkDispatchDetailsData ? (
+            <div className="p-4 space-y-4">
+              {/* Dispatch Basic Info */}
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <p className="text-gray-500">Company</p>
+                  <h2 className="font-semibold">{linkDispatchDetailsData?.company?.name}</h2>
+                </div>
+                <div>
+                  <p className="text-gray-500">Dispatch Date</p>
+                  <h2 className="font-semibold">{formatDate(linkDispatchDetailsData?.dateDispatched)}</h2>
+                </div>
+                <div>
+                  <p className="text-gray-500">Market</p>
+                  <h2 className="font-semibold capitalize">{linkDispatchDetailsData?.market}</h2>
+                </div>
+                <div>
+                  <p className="text-gray-500">Delivery Depot</p>
+                  <h2 className="font-semibold">{linkDispatchDetailsData?.deliveryTo?.name}</h2>
+                </div>
+                <div>
+                  <p className="text-gray-500">Vehicle No.</p>
+                  <h2 className="font-semibold">{linkDispatchDetailsData?.vehicleDetails?.vehicleNumber}</h2>
+                </div>
+                <div>
+                  <p className="text-gray-500">Driver Name</p>
+                  <h2 className="font-semibold">{linkDispatchDetailsData?.vehicleDetails?.driverName}({linkDispatchDetailsData?.vehicleDetails?.driverContact})</h2>
+                </div>
+              </div>
+
+              {/* Items and EAL Links */}
+              <div className="mt-6">
+                <h3 className="text-lg font-semibold mb-4">Items & EAL Links</h3>
+
+                {linkDispatchDetailsData.items?.map((item, idx) => (
+                  <div key={idx} className="border border-gray-200 rounded-md p-4 mb-4 bg-blue-100">
+                    {/* Item Summary */}
+                    <div className="flex justify-between items-center mb-2">
+                      <h4 className="text-md font-medium text-gray-800">
+                        {item?.item?.name}
+                      </h4>
+                      <span className="text-sm text-gray-500">
+                        Quantity: {item.quantityInCases} cases | Issued: {item.EALIssuedQuantity || 0} cases
+                      </span>
+                    </div>
+
+                    {/* EAL Links List */}
+                    {item?.EALLinks?.length > 0 ? (
+                      <ul className="space-y-2 text-sm">
+                        {item.EALLinks.map((link, linkIndex) => {
+                          const usedQty = (parseInt(link.serialTo) - parseInt(link.serialFrom) + 1) / item?.item?.bottlesPerCase;
+                          return (
+                            <li
+                              key={linkIndex}
+                              className="bg-white border border-gray-300 rounded px-3 py-2 flex flex-col sm:flex-row justify-between"
+                            >
+                              <div>
+                                <div><strong>Prefix:</strong> {link.prefix}</div>
+                                <div><strong>Serials:</strong> {link.serialFrom.toString().padStart(10, '0')} → {link.serialTo.toString().padStart(10, '0')}</div>
+                              </div>
+                              <div className="text-right mt-2 sm:mt-0">
+                                <div><strong>Used:</strong> {usedQty} cases</div>
+                              </div>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    ) : (
+                      <p className="text-sm italic text-gray-400">No EALs linked for this item.</p>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              {/* Modal Footer */}
+              <div className="flex justify-end mt-4">
+                <button
+                  onClick={() => setLinkDispatchModalOpen(false)}
+                  className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          ) : (
+            <p className="text-gray-500">No dispatch selected.</p>
+          )}
+        </Modal>
+
+
       </div>
     </DashboardLayout>
   );
