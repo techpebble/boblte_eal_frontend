@@ -137,7 +137,7 @@ function AddEALIssuanceForm({onAddEALIssuance}) {
                     onChange={({target}) => handleChange('serialFrom', target.value)}
                     label="Serial From"
                     placeholder="Serial From (10 digits)"
-                    type="number"
+                    type="text"
                 />
             </div>
             <div className="md:col-span-3">
@@ -146,7 +146,7 @@ function AddEALIssuanceForm({onAddEALIssuance}) {
                     onChange={({target}) => handleChange('serialTo', target.value)}
                     label="Serial To"
                     placeholder="Serial To (10 digits)"
-                    type="number"
+                    type="text"
                 />
             </div>
             <div className="md:col-span-3">
@@ -155,7 +155,7 @@ function AddEALIssuanceForm({onAddEALIssuance}) {
                     onChange={({target}) => handleChange('issuedQuantity', target.value)}
                     label="Quantity Issued"
                     placeholder="Quantity"
-                    type="number"
+                    type="text"
                 />
             </div>
         </div>

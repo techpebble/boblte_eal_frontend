@@ -5,6 +5,7 @@ import { API_PATHS } from '../../utils/apiPaths';
 import axiosInstance from '../../utils/axiosInstance';
 import moment from 'moment';
 import { formatDateToYYYYMMDD } from '../../utils/helper';
+import ReactSelect from 'react-select';
 
 function AddDispatchForm({onSubmitDispatch, dispatchDetails}) {
     const [companies, setcompanies] = useState([]);
@@ -22,7 +23,7 @@ function AddDispatchForm({onSubmitDispatch, dispatchDetails}) {
         _id: dispatchDetails._id ? dispatchDetails._id : '',
         company: dispatchDetails.company ? dispatchDetails.company._id : '',
         market: dispatchDetails.market ? dispatchDetails.market : '',
-        dateDispatched:dispatchDetails.dateDispatched ? formatDateToYYYYMMDD(dispatchDetails.dateDispatched) : '',
+        dateDispatched:dispatchDetails.dateDispatched ? formatDateToYYYYMMDD(dispatchDetails.dateDispatched) : formatDateToYYYYMMDD(new Date()),
         deliveryTo: dispatchDetails.deliveryTo ? dispatchDetails.deliveryTo._id : '',
         items: dispatchDetails.items ? dispatchDetails.items : [],
     });
@@ -119,6 +120,13 @@ function AddDispatchForm({onSubmitDispatch, dispatchDetails}) {
         }
     }
 
+    const getTotalQuantity = () => {
+        return Dispatch.items.reduce((total, item) => {
+            const qty = parseFloat(item.quantityInCases);
+            return total + (isNaN(qty) ? 0 : qty);
+        }, 0);
+    };
+
     useEffect(() => {
         if (Dispatch.items.length > 0 && !dispatchDetails?._id) {
             Dispatch.items = [];
@@ -141,6 +149,7 @@ function AddDispatchForm({onSubmitDispatch, dispatchDetails}) {
                 <Select
                     label="Company"
                     disabled={dispatchDetails?._id ? 'disabled' : ''}
+                    searchable={false}
                     placeholder="Select a Company"
                     value={Dispatch.company}
                     onChange={({target}) => handleChange('company', target.value)}
@@ -151,6 +160,7 @@ function AddDispatchForm({onSubmitDispatch, dispatchDetails}) {
                 <Select
                     label="Market"
                     disabled={dispatchDetails?._id ? 'disabled' : ''}
+                    searchable={false}
                     placeholder="Select a Market"
                     value={Dispatch.market}
                     onChange={({target}) => handleChange('market', target.value)}
@@ -173,12 +183,13 @@ function AddDispatchForm({onSubmitDispatch, dispatchDetails}) {
             <div className="md:col-span-6">
                 <Select
                     label="Delivery To"
+                    searchable={true}
                     placeholder="Select Delivery Depot"
                     value={Dispatch.deliveryTo}
                     onChange={({target}) => handleChange('deliveryTo', target.value)}
                     options={deliveryLocations}
                 />
-            </div>
+                </div>
         </div>
 
         <div>
@@ -201,22 +212,31 @@ function AddDispatchForm({onSubmitDispatch, dispatchDetails}) {
                     <tr key={index} className="bg-white border-b hover:bg-gray-50">
                         <td className='px-4 py-3 border'>{index + 1}</td>
                         <td className='px-4 py-3 border'>
-                            <select
-                                value={itemForm.item}
-                                onChange={({ target }) => handleItemChange(index, 'item', target.value)}
-                                className='p-2 w-full bg-transparent outline-none'
-                            >
-                                <option value="" disabled hidden>Select Item</option>
-                                {products.map((option) => (
-                                    <option key={option.value} value={option.value}>
-                                        {option.label}
-                                    </option>
-                                ))}
-                            </select>
+                            <ReactSelect
+                                value={itemForm.item._id ?  products.find(p => p.value === itemForm.item._id) || null : products.find(p => p.value === itemForm.item) || null}
+                                onChange={(selected) => handleItemChange(index, 'item', selected ? selected.value : '')}
+                                options={products}
+                                placeholder="Select Item"
+                                isSearchable
+                                styles={{
+                                control: (base) => ({
+                                    ...base,
+                                    backgroundColor: 'transparent',
+                                    borderColor: '#d1d5db', // Tailwind's gray-300
+                                    border: 0,
+                                    minHeight: '36px',
+                                    fontSize: '0.875rem',
+                                }),
+                                menu: (base) => ({
+                                    ...base,
+                                    zIndex: 100,
+                                }),
+                                }}
+                            />
                         </td>
                         <td className='px-4 py-3 border'>
                             <input
-                                type='number'
+                                type='text'
                                 placeholder='Quantity'
                                 className='w-full bg-transparent outline-none'
                                 value={itemForm.quantityInCases}
@@ -228,6 +248,11 @@ function AddDispatchForm({onSubmitDispatch, dispatchDetails}) {
                         </td>
                     </tr>
                 ))}
+                <tr className="bg-gray-50 font-semibold">
+                    <td colSpan="2" className="px-4 py-3 border text-right">Total</td>
+                    <td className="px-4 py-3 border">{getTotalQuantity()}</td>
+                    <td className="px-4 py-3 border"></td>
+                </tr>
             </tbody>
                 
         </table>

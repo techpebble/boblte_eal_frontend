@@ -547,6 +547,16 @@ const Dispatch = () => {
                 <h2 className="text-lg font-semibold">{dispatchData.EALIssuedTotalQuantity}</h2>
               </div>
             </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-gray-500 text-sm">Vehicle Number</p>
+                <h2 className="text-lg font-semibold">{dispatchData?.vehicleDetails?.vehicleNumber}</h2>
+              </div>
+              <div>
+                <p className="text-gray-500 text-sm">Driver</p>
+                <h2 className="text-lg font-semibold">{dispatchData?.vehicleDetails?.driverName} ({dispatchData?.vehicleDetails?.driverContact})</h2>
+              </div>
+            </div>
 
             {/* Items Table */}
             <div>

@@ -165,10 +165,10 @@ const EALUsage = () => {
                         <th className="px-4 py-3 border">Company</th>
                         <th className="px-4 py-3 border">Date Issued</th>
                         <th className="px-4 py-3 border">Market</th>
-                        <th className="px-4 py-3 border">Pack</th>
+                        <th className="px-4 py-3 border">Item</th>
                         <th className="px-4 py-3 border">Serial From</th>
                         <th className="px-4 py-3 border">Serial To</th>
-                        <th className="px-4 py-3 border">Balance in Cases</th>
+                        <th className="px-4 py-3 border">QTY [BALA](in CS)</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -178,10 +178,10 @@ const EALUsage = () => {
                             <td className="px-4 py-2 border">{entry.company.name}</td>
                             <td className="px-4 py-2 border">{formatDate(entry.dateUsed)}</td>
                             <td className="px-4 py-2 border capitalize">{entry.market}</td>
-                            <td className="px-4 py-2 border">{entry.pack.bottlesPerCase + ' x ' + entry.pack.name}</td>
+                            <td className="px-4 py-2 border">{entry.item.name}</td>
                             <td className="px-4 py-2 border">{entry.prefix}{entry.serialFrom.toString().padStart(10, '0')}</td>
                             <td className="px-4 py-2 border">{entry.prefix}{entry.serialTo.toString().padStart(10, '0')}</td>
-                            <td className="px-4 py-2 border">{entry.balanceQuantity / entry.pack.bottlesPerCase}</td>
+                            <td className="px-4 py-2 border">{entry.usedQuantityInCases} [{entry.balanceQuantityInCases}]</td>
                           </tr>
                         ))
                       ) : (

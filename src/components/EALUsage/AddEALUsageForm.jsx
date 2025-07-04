@@ -176,7 +176,7 @@ function AddEALUsageForm({onAddEALUsage}) {
                         onChange={({target}) => handleChange('usedQuantityInCases', target.value)}
                         label="Quantity Produced"
                         placeholder="In Cases"
-                        type="number"
+                        type="text"
                     />
                 </div>
             </div>
@@ -198,7 +198,7 @@ function AddEALUsageForm({onAddEALUsage}) {
                         onChange={({target}) => handleChange('serialFrom', target.value)}
                         label="Serial From"
                         placeholder="Serial From (10 digits)"
-                        type="number"
+                        type="text"
                     />
                 </div>
                 <div className="md:col-span-3">
@@ -207,7 +207,7 @@ function AddEALUsageForm({onAddEALUsage}) {
                         onChange={({target}) => handleChange('serialTo', target.value)}
                         label="Serial To"
                         placeholder="Serial To (10 digits)"
-                        type="number"
+                        type="text"
                     />
                 </div>
                 <div className="md:col-span-3">
@@ -215,7 +215,7 @@ function AddEALUsageForm({onAddEALUsage}) {
                         value={EALIssuance.usedQuantity}
                         label="Quantity Used"
                         placeholder="Quantity"
-                        type="number"
+                        type="text"
                         readOnly
                     />
                 </div>
