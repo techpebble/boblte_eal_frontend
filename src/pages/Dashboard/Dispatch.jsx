@@ -195,7 +195,7 @@ const Dispatch = () => {
     const usedCases = usedQuantity / bottlesPerCase;
     const availableCases = selectedItem.quantityInCases - selectedItem.EALIssuedQuantity;
 
-    
+
     // Validate EAL input fields
     if (!/^[A-Z]{3}$/.test(newEALData.prefix.trim())) {
       toast.error('Prefix must be 3 uppercase letters (A-Z)');
@@ -214,7 +214,7 @@ const Dispatch = () => {
       return;
     }
 
-    if (usedQuantity % bottlesPerCase !== 0 || (parseInt(newEALData.serialTo) % bottlesPerCase) !== 0 || ((parseInt(newEALData.serialFrom) - 1) %  bottlesPerCase) !== 0) {
+    if (usedQuantity % bottlesPerCase !== 0 || (parseInt(newEALData.serialTo) % bottlesPerCase) !== 0 || ((parseInt(newEALData.serialFrom) - 1) % bottlesPerCase) !== 0) {
       toast.error(`Serial range not divisible by bottles per case.`);
       return;
     }
@@ -235,7 +235,7 @@ const Dispatch = () => {
       "serialFrom": newEALData.serialFrom,
       "serialTo": newEALData.serialTo
     }
-    
+
     try {
       setLoading(true);
       const response = await axiosInstance.post(API_PATHS.EALDISPATCH.ADD_EAL_LINK, EALLink);
@@ -339,6 +339,29 @@ const Dispatch = () => {
     }
   };
 
+  const deleteDispatch = async (id) => {
+    try {
+      setLoading(true);
+      const url = `${API_PATHS.DISPATCH.DELETE_DATA}/${id}`;
+      await axiosInstance.delete(url);
+
+      // close the modal
+      setOpenDispatchModalView(false);
+
+      setDispatches(prev => ({
+        ...prev,
+        data: prev.data.filter(dispatch => dispatch._id !== id)
+      }));
+
+      toast.success('Dispatch deleted successfully');
+    } catch (error) {
+      console.error('Error deleting Dispatch:', error.response?.data?.message || error.message);
+      toast.error(error.response?.data?.message || 'Failed to delete dispatch.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSubmitVehicleDetails = async (dispatchId, vehicleDetails) => {
     try {
       vehicleDetails.status = 'loaded'; // Set status to 'loaded' when submitting vehicle details
@@ -372,7 +395,7 @@ const Dispatch = () => {
         "serialFrom": ealLink.serialFrom,
         "serialTo": ealLink.serialTo
       }
-      
+
       try {
         setLoading(true);
         // Example API call for unlinking (replace with your actual API endpoint)
@@ -382,7 +405,7 @@ const Dispatch = () => {
 
         // ✅ Update `dispatchData`
         setDispatchData(updatedDispatch);
-        
+
         // ✅ Update `selectedItem`
         const updatedSelectedItem = updatedDispatch.items.find(
           item => item.item._id === selectedItem.item._id
@@ -429,71 +452,73 @@ const Dispatch = () => {
       <div className="my-5 mx-auto">
         <div className="grid grid-cols-1 gap-6">
           <div>
-            <div className="card">
-              <div className="flex items-center justify-between">
+            <div className="bg-gradient-to-br from-blue-50 to-white rounded-xl shadow-lg border border-gray-100 p-0">
+              <div className="px-8 pt-8 pb-4 border-b border-gray-200 rounded-t-xl flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                  <h5 className="text-lg">Dispatch </h5>
-                  <p className="text-xs text-gray-400 mt-0.5">Track your Dispatch over time</p>
+                  <h2 className="text-2xl font-bold text-blue-900 mb-1">Dispatches</h2>
+                  <p className="text-sm text-gray-500">Track your dispatch records over time.</p>
                 </div>
-                <DateRangeModal dateRange={dateRange} onApplyDateRange={onApplyDateRange} />
-                <button
-                  className="add-btn"
-                  onClick={() => {
-                    setOpenDispatchModalAdd(true);
-                    setDispatchData([]); // Clear dispatch data when adding new
-                  }}
-                >
-                  <LuPlus className="text-lg" />
-                  Add Dispatch
-                </button>
+                <div className="flex items-center gap-3">
+                  <DateRangeModal dateRange={dateRange} onApplyDateRange={onApplyDateRange} />
+                  <button
+                    className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 rounded shadow flex items-center gap-2"
+                    onClick={() => {
+                      setOpenDispatchModalAdd(true);
+                      setDispatchData([]); // Clear dispatch data when adding new
+                    }}
+                  >
+                    <LuPlus className="text-lg" />
+                    Add Dispatch
+                  </button>
+                </div>
               </div>
-              <div className="mt-10">
-                <div className="overflow-x-auto mt-4">
-                  <table className="table-auto min-w-full border border-gray-200 text-sm text-left text-gray-700">
-                    <thead className="bg-gray-100 text-xs text-gray-700 uppercase">
+              <div className="px-8 py-8">
+                <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white">
+                  <table className="min-w-full text-sm text-left text-gray-700">
+                    <thead className="bg-gray-50 sticky top-0 z-10">
                       <tr>
-                        <th className="px-4 py-3 border">Si. No.</th>
-                        <th className="px-4 py-3 border">Company</th>
-                        <th className="px-4 py-3 border">Dispatch Date</th>
-                        <th className="px-4 py-3 border">Market</th>
-                        <th className="px-4 py-3 border">Delivery Depot</th>
-                        <th className="px-4 py-3 border">Status</th>
-                        <th className="px-4 py-3 border">Quantity</th>
-                        <th className="px-4 py-3 border">EAL Linked Quantity</th>
-                        <th className="px-4 py-3 border">Action</th>
+                        <th className="px-4 py-3 border-b font-semibold text-gray-700">Si. No.</th>
+                        <th className="px-4 py-3 border-b font-semibold text-gray-700">Company</th>
+                        <th className="px-4 py-3 border-b font-semibold text-gray-700">Dispatch Date</th>
+                        <th className="px-4 py-3 border-b font-semibold text-gray-700">Market</th>
+                        <th className="px-4 py-3 border-b font-semibold text-gray-700">Delivery Depot</th>
+                        <th className="px-4 py-3 border-b font-semibold text-gray-700">Status</th>
+                        <th className="px-4 py-3 border-b font-semibold text-gray-700">Quantity</th>
+                        <th className="px-4 py-3 border-b font-semibold text-gray-700">EAL Linked Quantity</th>
+                        <th className="px-4 py-3 border-b font-semibold text-gray-700">Action</th>
                       </tr>
                     </thead>
                     <tbody>
                       {/* Conditional rendering for dispatch data */}
                       {Array.isArray(dispatches?.data) && dispatches.data.length > 0 ? (
                         dispatches.data.map((entry, index) => (
-                          <tr key={entry._id} className="bg-white border-b hover:bg-gray-50">
-                            <td className="px-4 py-2 border">{index + 1}</td>
-                            <td className="px-4 py-2 border">{entry.company.name}</td>
-                            <td className="px-4 py-2 border">{formatDate(entry.dateDispatched)}</td>
-                            <td className="px-4 py-2 border capitalize">{entry.market}</td>
-                            <td className="px-4 py-2 border">{entry.deliveryTo.name}</td>
-                            <td className="px-4 py-2 border capitalize">{entry.status}</td>
-                            <td className="px-4 py-2 border">{entry.totalQuantity}</td>
-                            <td className="px-4 py-2 border">{entry.EALIssuedTotalQuantity}</td>
-                            <td className="px-4 py-2 flex justify-center items-center gap-2">
+                          <tr key={entry._id} className="hover:bg-blue-50 transition-colors">
+                            <td className="px-4 py-2 border-b text-gray-900 font-medium">{index + 1}</td>
+                            <td className="px-4 py-2 border-b">{entry.company.name}</td>
+                            <td className="px-4 py-2 border-b">{formatDate(entry.dateDispatched)}</td>
+                            <td className="px-4 py-2 border-b capitalize">{entry.market}</td>
+                            <td className="px-4 py-2 border-b">{entry.deliveryTo.name}</td>
+                            <td className="px-4 py-2 border-b capitalize">{entry.status}</td>
+                            <td className="px-4 py-2 border-b">{entry.totalQuantity}</td>
+                            <td className="px-4 py-2 border-b">{entry.EALIssuedTotalQuantity}</td>
+                            <td className="px-4 py-2 border-b flex justify-center items-center gap-2">
                               <button
-                                className="btn bg-green-300 border-none"
+                                className="bg-green-100 hover:bg-green-200 text-green-700 font-semibold px-3 py-1 rounded shadow flex items-center gap-1"
                                 onClick={() => viewDispatchDetails(entry)}
                               >
                                 <LuEye className="text-lg" />
                               </button>
                               <button
-                                className="btn bg-amber-200 border-none"
-                                onClick={() => editDispatchDetails(entry)}
-                              >
-                                <LuPen className="text-lg" />
-                              </button>
-                              <button
-                                className="btn bg-red-400 border-none"
+                                className="bg-red-100 hover:bg-red-200 text-red-700 font-semibold px-3 py-1 rounded shadow flex items-center gap-1"
                                 onClick={() => linkDispatchDetails(entry)}
                               >
                                 <LuLink className="text-lg" />
+                              </button>
+                              <button
+                                className="bg-yellow-100 hover:bg-yellow-200 text-yellow-700 font-semibold px-3 py-1 rounded shadow flex items-center gap-1"
+                                onClick={() => editDispatchDetails(entry)}
+                              >
+                                <LuPen className="text-lg" />
                               </button>
                             </td>
                           </tr>
@@ -515,92 +540,113 @@ const Dispatch = () => {
 
         {/* Modal for Adding/Editing Dispatch */}
         <Modal isOpen={openDispatchModalAdd} onClose={() => setOpenDispatchModalAdd(false)} title={dispatchData?._id ? 'Update Dispatch' : 'Add Dispatch'} styleClass="w-full">
-          <AddDispatchForm onSubmitDispatch={handleSubmitDispatch} dispatchDetails={dispatchData} />
+          <div className="bg-gradient-to-br from-blue-50 to-white rounded-xl p-0">
+            <div className="px-8 pt-8 pb-4 border-b border-gray-200 rounded-t-xl">
+              <h2 className="text-2xl font-bold text-blue-900 mb-2">{dispatchData?._id ? 'Update Dispatch' : 'Add Dispatch'}</h2>
+              <p className="text-sm text-gray-500 mb-2">Fill in the details below to {dispatchData?._id ? 'update' : 'add'} a dispatch record.</p>
+            </div>
+            <div className="px-8 py-8">
+              <AddDispatchForm onSubmitDispatch={handleSubmitDispatch} dispatchDetails={dispatchData} />
+            </div>
+          </div>
         </Modal>
 
         {/* Modal for Viewing Dispatch Details */}
         <Modal isOpen={openDispatchModalView} onClose={() => setOpenDispatchModalView(false)} title="Dispatch Details" styleClass="w-full">
-          <div className="h-full overflow-y-auto mx-auto p-6 bg-white shadow-xl rounded-xl space-y-6">
-            {/* Header Info */}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-gray-500 text-sm">Company</p>
-                <h2 className="text-lg font-semibold">{dispatchData?.company?.name}</h2>
+          <div className="h-full overflow-y-auto mx-auto p-0 bg-white shadow-xl rounded-xl">
+            {/* Header Section */}
+            <div className="px-8 pt-8 pb-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-white rounded-t-xl">
+              <div className="grid grid-cols-2 gap-6 mb-2">
+                <div>
+                  <p className="text-gray-500 text-xs">Company</p>
+                  <h2 className="text-xl font-bold text-blue-900">{dispatchData?.company?.name}</h2>
+                </div>
+                <div>
+                  <p className="text-gray-500 text-xs">Market</p>
+                  <h2 className="text-xl font-bold capitalize text-blue-900">{dispatchData.market}</h2>
+                </div>
               </div>
-              <div>
-                <p className="text-gray-500 text-sm">Market</p>
-                <h2 className="text-lg font-semibold capitalize">{dispatchData.market}</h2>
+              <div className="grid grid-cols-2 gap-6 mb-2">
+                <div>
+                  <p className="text-gray-500 text-xs">Dispatch Date</p>
+                  <h2 className="text-lg font-semibold">{new Date(dispatchData.dateDispatched).toLocaleDateString()}</h2>
+                </div>
+                <div>
+                  <p className="text-gray-500 text-xs">Delivery Location</p>
+                  <h2 className="text-lg font-semibold">{dispatchData.deliveryTo?.name}</h2>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-6 mb-2">
+                <div>
+                  <p className="text-gray-500 text-xs">Total Quantity</p>
+                  <h2 className="text-lg font-semibold">{dispatchData.totalQuantity}</h2>
+                </div>
+                <div>
+                  <p className="text-gray-500 text-xs">EAL Issued Quantity</p>
+                  <h2 className="text-lg font-semibold">{dispatchData.EALIssuedTotalQuantity}</h2>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-6">
+                <div>
+                  <p className="text-gray-500 text-xs">Vehicle Number</p>
+                  <h2 className="text-lg font-semibold">{dispatchData?.vehicleDetails?.vehicleNumber}</h2>
+                </div>
+                <div>
+                  <p className="text-gray-500 text-xs">Driver</p>
+                  <h2 className="text-lg font-semibold">{dispatchData?.vehicleDetails?.driverName} ({dispatchData?.vehicleDetails?.driverContact})</h2>
+                </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-gray-500 text-sm">Dispatch Date</p>
-                <h2 className="text-lg font-semibold">{new Date(dispatchData.dateDispatched).toLocaleDateString()}</h2>
-              </div>
-              <div>
-                <p className="text-gray-500 text-sm">Delivery Location</p>
-                <h2 className="text-lg font-semibold">{dispatchData.deliveryTo?.name}</h2>
+            {/* Items Table Section */}
+            <div className="px-8 py-6">
+              <h3 className="text-lg font-bold mb-4 text-gray-800">Items</h3>
+              <div className="overflow-x-auto rounded-lg border border-gray-200">
+                <table className="min-w-full text-sm text-left text-gray-700">
+                  <thead className="bg-gray-50 sticky top-0 z-10">
+                    <tr>
+                      <th className="px-4 py-3 border-b font-semibold text-gray-700">Item</th>
+                      <th className="px-4 py-3 border-b font-semibold text-gray-700 text-right">Quantity</th>
+                      <th className="px-4 py-3 border-b font-semibold text-gray-700 text-right">EAL Issued</th>
+                      <th className="px-4 py-3 border-b font-semibold text-gray-700 text-center">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {dispatchData.items &&
+                      dispatchData.items.map((itemEntry, index) => (
+                        <tr key={index} className="hover:bg-blue-50 transition-colors">
+                          <td className="px-4 py-2 border-b text-gray-900 font-medium">{itemEntry?.item.name}</td>
+                          <td className="px-4 py-2 border-b text-right">{itemEntry.quantityInCases}</td>
+                          <td className="px-4 py-2 border-b text-right">{itemEntry.EALIssuedQuantity || 0}</td>
+                          <td className="px-4 py-2 border-b text-center">
+                            {dispatchData.status == 'final' && <button onClick={() => openEALModal(itemEntry)} className="text-sm px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700 transition">
+                              {itemEntry.EALIssuedQuantity < itemEntry.quantityInCases ? 'Link EAL' : 'Unlink EAL'}
+                            </button>}
+                          </td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-gray-500 text-sm">Total Quantity</p>
-                <h2 className="text-lg font-semibold">{dispatchData.totalQuantity}</h2>
-              </div>
-              <div>
-                <p className="text-gray-500 text-sm">EAL Issued Quantity</p>
-                <h2 className="text-lg font-semibold">{dispatchData.EALIssuedTotalQuantity}</h2>
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-gray-500 text-sm">Vehicle Number</p>
-                <h2 className="text-lg font-semibold">{dispatchData?.vehicleDetails?.vehicleNumber}</h2>
-              </div>
-              <div>
-                <p className="text-gray-500 text-sm">Driver</p>
-                <h2 className="text-lg font-semibold">{dispatchData?.vehicleDetails?.driverName} ({dispatchData?.vehicleDetails?.driverContact})</h2>
-              </div>
-            </div>
-
-            {/* Items Table */}
-            <div>
-              <h3 className="text-lg font-semibold mb-2">Items</h3>
-              <table className="w-full border border-gray-300 rounded-md overflow-hidden">
-                <thead className="bg-gray-100">
-                  <tr>
-                    <th className="text-left p-3 text-sm font-medium text-gray-700">Item</th>
-                    <th className="text-right p-3 text-sm font-medium text-gray-700">Quantity</th>
-                    <th className="text-right p-3 text-sm font-medium text-gray-700">EAL Issued</th>
-                    <th className="text-center p-3 text-sm font-medium text-gray-700">Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {dispatchData.items &&
-                    dispatchData.items.map((itemEntry, index) => (
-                      <tr key={index} className="border-t">
-                        <td className="p-3 text-gray-800">{itemEntry?.item.name}</td>
-                        <td className="p-3 text-right text-gray-800">{itemEntry.quantityInCases}</td>
-                        <td className="p-3 text-right text-gray-800">{itemEntry.EALIssuedQuantity || 0}</td>
-                        <td className="p-3 text-center">
-                          {dispatchData.status == 'final' && <button onClick={() => openEALModal(itemEntry)} className="text-sm text-blue-600 hover:underline">
-                            {itemEntry.EALIssuedQuantity < itemEntry.quantityInCases ? 'Link EAL' : 'Unlink EAL'}
-                          </button>}
-                        </td>
-                      </tr>
-                    ))}
-                </tbody>
-              </table>
-            </div>
-
-            <div className="flex justify-between mt-4">
-              <span />
+            {/* Footer Actions Section */}
+            <div className="px-8 pb-8 flex flex-col sm:flex-row justify-end items-center gap-4 border-t border-gray-100 bg-gray-50 rounded-b-xl">
               {/* Conditional rendering for Finalize button */}
               {dispatchData.status === 'draft' && (
-                <button type="button" className="btn" onClick={() => updateDispatchStatus(dispatchData._id, 'final')}>
-                  Finalize
+                <>
+                  <button type="button" className="btn bg-blue-600 text-white hover:bg-blue-700 px-6 py-2 rounded" onClick={() => updateDispatchStatus(dispatchData._id, 'final')}>
+                    Finalize
+                  </button>
+                  <button type="button" className="btn bg-gray-500 text-white hover:bg-gray-600 px-6 py-2 rounded" onClick={() => deleteDispatch(dispatchData._id)}>
+                    Delete
+                  </button>
+                </>
+              )}
+
+              {dispatchData.status === 'final' && dispatchData.EALIssuedTotalQuantity === 0 && (
+                <button type="button" className="btn bg-yellow-500 text-white hover:bg-yellow-600 px-6 py-2 rounded" onClick={() => updateDispatchStatus(dispatchData._id, 'draft')}>
+                  Draft
                 </button>
               )}
 
@@ -608,7 +654,7 @@ const Dispatch = () => {
                 dispatchData.EALIssuedTotalQuantity === dispatchData.totalQuantity ? (
                   <button
                     type="button"
-                    className="btn bg-green-600 text-white hover:bg-green-700"
+                    className="btn bg-green-600 text-white hover:bg-green-700 px-6 py-2 rounded"
                     onClick={() => setopenDispatchModalLoad(true)}
                   >
                     Loaded
@@ -617,7 +663,6 @@ const Dispatch = () => {
                   <span className="text-sm italic text-gray-500 mt-2">Pending EAL issuance</span>
                 )
               )}
-
             </div>
           </div>
         </Modal>
@@ -625,43 +670,40 @@ const Dispatch = () => {
         {/* Modal for Linking EAL */}
         <Modal isOpen={selectedItem} onClose={closeEALModal} title={`Link EAL - ${selectedItem?.item.name}`} styleClass="w-3xl">
           {/* Quantity Summary */}
-          <div className="grid grid-cols-3 text-center gap-2 mt-4 text-sm">
-            <div className="p-3 rounded bg-gray-100">
-              <div className="font-semibold text-gray-600">Total Qty</div>
-              <div className="text-lg font-bold">{selectedItem?.quantityInCases}</div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-2 mb-6">
+            <div className="flex flex-col items-center justify-center p-4 rounded-xl bg-gray-50 border border-gray-200">
+              <span className="text-xs text-gray-500 mb-1">Total Qty</span>
+              <span className="text-2xl font-bold text-blue-900">{selectedItem?.quantityInCases}</span>
             </div>
-            <div className="p-3 rounded bg-green-100">
-              <div className="font-semibold text-gray-600">EAL Issued</div>
-              <div className="text-lg font-bold text-green-700">
-                {selectedItem?.EALIssuedQuantity || 0}
-              </div>
+            <div className="flex flex-col items-center justify-center p-4 rounded-xl bg-green-50 border border-green-200">
+              <span className="text-xs text-gray-500 mb-1">EAL Issued</span>
+              <span className="text-2xl font-bold text-green-700">{selectedItem?.EALIssuedQuantity || 0}</span>
             </div>
-            <div className="p-3 rounded bg-yellow-100">
-              <div className="font-semibold text-gray-600">Balance</div>
-              <div className="text-lg font-bold text-yellow-700">
-                {selectedItem?.quantityInCases - (selectedItem?.EALIssuedQuantity || 0)}
-              </div>
+            <div className="flex flex-col items-center justify-center p-4 rounded-xl bg-yellow-50 border border-yellow-200">
+              <span className="text-xs text-gray-500 mb-1">Balance</span>
+              <span className="text-2xl font-bold text-yellow-700">{selectedItem?.quantityInCases - (selectedItem?.EALIssuedQuantity || 0)}</span>
             </div>
           </div>
 
           {/* Linked EAL Details */}
-          <div className="mt-5">
-            <h4 className="font-semibold text-sm mb-3">Linked EALs</h4>
+          <div className="mt-2 mb-6">
+            <h4 className="font-semibold text-base mb-3 text-gray-800">Linked EALs</h4>
             {selectedItem?.EALLinks && selectedItem.EALLinks.length > 0 ? (
-              <ul className="space-y-2">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {selectedItem.EALLinks.map((link, index) => (
-                  <li key={index} className="border rounded-lg p-3 flex justify-between items-center bg-gray-50">
-                    <div>
-                      <div className="font-medium text-sm">Prefix: {link.prefix}</div>
-                      <div className="font-medium text-sm">Serials: {link.serialFrom.toString().padStart(10, '0')} &rarr; {link.serialTo.toString().padStart(10, '0')}</div>
-                      <div className="text-xs text-gray-500">Used: {(link.serialTo - link.serialFrom + 1) / selectedItem?.item?.bottlesPerCase}</div>
+                  <div key={index} className="border rounded-xl p-4 flex flex-col gap-2 bg-white shadow-sm relative">
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-blue-700 text-xs bg-blue-50 px-2 py-1 rounded">{link.prefix}</span>
+                      <span className="text-xs text-gray-500">Serials:</span>
+                      <span className="font-mono text-xs text-gray-800">{link.serialFrom.toString().padStart(10, '0')}</span>
+                      <span className="text-xs">→</span>
+                      <span className="font-mono text-xs text-gray-800">{link.serialTo.toString().padStart(10, '0')}</span>
                     </div>
-                    {dispatchData.status === 'final' && <button onClick={() => setUnlinkCandidate(link)} className="text-red-500 hover:underline text-xs">
-                      Unlink
-                    </button>}
-                  </li>
+                    <div className="text-xs text-gray-500">Used: <span className="font-semibold text-gray-700">{(link.serialTo - link.serialFrom + 1) / selectedItem?.item?.bottlesPerCase}</span> cases</div>
+                    {dispatchData.status === 'final' && <button onClick={() => setUnlinkCandidate(link)} className="absolute top-2 right-2 text-red-500 hover:text-red-700 text-xs font-semibold px-2 py-1 rounded bg-red-50">Unlink</button>}
+                  </div>
                 ))}
-              </ul>
+              </div>
             ) : (
               <p className="text-sm italic text-gray-400">No EALs linked yet.</p>
             )}
@@ -669,50 +711,60 @@ const Dispatch = () => {
 
           {/* Add New EAL Form (conditionally rendered if balance > 0) */}
           {selectedItem?.quantityInCases - (selectedItem?.EALIssuedQuantity || 0) > 0 && (
-            <div className="mt-6 border-t pt-4">
-              <h4 className="font-semibold text-sm mb-3">Link New EAL</h4>
-              <div className="space-y-3">
-                <div className="grid grid-cols-3 gap-2 text-sm">
+            <div className="mt-6 border-t pt-6">
+              <h4 className="font-semibold text-base mb-3 text-gray-800">Link New EAL</h4>
+              <form className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm items-end" onSubmit={e => { e.preventDefault(); handleAddEAL(); }}>
+                <div>
+                  <label className="block text-xs text-gray-500 mb-1" htmlFor="prefix">Prefix</label>
                   <input
                     value={newEALData.prefix}
                     onChange={({ target }) => handleChange('prefix', target.value)}
                     type="text"
                     name="prefix"
-                    placeholder="Prefix (e.g., ABC)"
+                    id="prefix"
+                    placeholder="e.g., ABC"
                     required
-                    className="border px-3 py-2 rounded w-full"
+                    className="border px-3 py-2 rounded w-full focus:ring focus:ring-blue-100"
                   />
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-500 mb-1" htmlFor="serialFrom">Serial From</label>
                   <input
                     value={newEALData.serialFrom}
                     onChange={({ target }) => handleChange('serialFrom', target.value)}
                     type="number"
                     name="serialFrom"
-                    placeholder="Serial From (10 digits)"
+                    id="serialFrom"
+                    placeholder="10 digits"
                     required
-                    className="border px-3 py-2 rounded w-full"
+                    className="border px-3 py-2 rounded w-full focus:ring focus:ring-blue-100"
                   />
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-500 mb-1" htmlFor="serialTo">Serial To</label>
                   <input
                     value={newEALData.serialTo}
                     onChange={({ target }) => handleChange('serialTo', target.value)}
                     type="number"
                     name="serialTo"
-                    placeholder="Serial To (10 digits)"
+                    id="serialTo"
+                    placeholder="10 digits"
                     required
-                    className="border px-3 py-2 rounded w-full"
+                    className="border px-3 py-2 rounded w-full focus:ring focus:ring-blue-100"
                   />
                 </div>
-                <div className="text-right">
-                  <button onClick={handleAddEAL} type="button" className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded">
+                <div className="md:col-span-3 text-right mt-2">
+                  <button onClick={handleAddEAL} type="submit" className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-6 py-2 rounded shadow">
                     Link EAL
                   </button>
                 </div>
-              </div>
+              </form>
             </div>
           )}
 
           {/* Modal Actions */}
-          <div className="flex justify-end mt-6">
-            <button onClick={closeEALModal} className="px-4 py-2 bg-gray-200 rounded mr-2">
+          <div className="flex justify-end mt-8 gap-2">
+            <button onClick={closeEALModal} className="px-5 py-2 bg-gray-200 hover:bg-gray-300 rounded text-gray-700 font-medium">
               Close
             </button>
           </div>
@@ -762,10 +814,9 @@ const Dispatch = () => {
               </button>
               <button
                 disabled={unlinkConfirmText !== 'unlink'}
-                onClick={()=> {handleUnlinkEAL(unlinkCandidate)}}
-                className={`px-4 py-2 text-sm text-white rounded ${
-                  unlinkConfirmText === 'unlink' ? 'bg-red-600 hover:bg-red-700' : 'bg-red-300 cursor-not-allowed'
-                }`}
+                onClick={() => { handleUnlinkEAL(unlinkCandidate) }}
+                className={`px-4 py-2 text-sm text-white rounded ${unlinkConfirmText === 'unlink' ? 'bg-red-600 hover:bg-red-700' : 'bg-red-300 cursor-not-allowed'
+                  }`}
               >
                 Confirm Unlink
               </button>
@@ -819,7 +870,8 @@ const Dispatch = () => {
             </div>
           </div>
         </Modal>
-        
+
+        {/* Modal for Viewing Link Dispatch Details */}
         <Modal
           isOpen={linkDispatchModalOpen}
           onClose={() => {
@@ -830,84 +882,89 @@ const Dispatch = () => {
           styleClass="w-full max-w-4xl"
         >
           {linkDispatchDetailsData ? (
-            <div className="p-4 space-y-4">
-              {/* Dispatch Basic Info */}
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <p className="text-gray-500">Company</p>
-                  <h2 className="font-semibold">{linkDispatchDetailsData?.company?.name}</h2>
-                </div>
-                <div>
-                  <p className="text-gray-500">Dispatch Date</p>
-                  <h2 className="font-semibold">{formatDate(linkDispatchDetailsData?.dateDispatched)}</h2>
-                </div>
-                <div>
-                  <p className="text-gray-500">Market</p>
-                  <h2 className="font-semibold capitalize">{linkDispatchDetailsData?.market}</h2>
-                </div>
-                <div>
-                  <p className="text-gray-500">Delivery Depot</p>
-                  <h2 className="font-semibold">{linkDispatchDetailsData?.deliveryTo?.name}</h2>
-                </div>
-                <div>
-                  <p className="text-gray-500">Vehicle No.</p>
-                  <h2 className="font-semibold">{linkDispatchDetailsData?.vehicleDetails?.vehicleNumber}</h2>
-                </div>
-                <div>
-                  <p className="text-gray-500">Driver Name</p>
-                  <h2 className="font-semibold">{linkDispatchDetailsData?.vehicleDetails?.driverName}({linkDispatchDetailsData?.vehicleDetails?.driverContact})</h2>
+            <div className="bg-gradient-to-br from-blue-50 to-white rounded-xl p-0">
+              {/* Section: Dispatch Info */}
+              <div className="px-8 pt-8 pb-4 border-b border-gray-200 rounded-t-xl">
+                <h2 className="text-2xl font-bold text-blue-900 mb-2">Dispatch Info</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="text-gray-500">Company</span>
+                    <div className="font-semibold text-blue-900">{linkDispatchDetailsData?.company?.name}</div>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">Dispatch Date</span>
+                    <div className="font-semibold">{formatDate(linkDispatchDetailsData?.dateDispatched)}</div>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">Market</span>
+                    <div className="font-semibold capitalize">{linkDispatchDetailsData?.market}</div>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">Delivery Depot</span>
+                    <div className="font-semibold">{linkDispatchDetailsData?.deliveryTo?.name}</div>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">Vehicle No.</span>
+                    <div className="font-semibold">{linkDispatchDetailsData?.vehicleDetails?.vehicleNumber}</div>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">Driver Name</span>
+                    <div className="font-semibold">{linkDispatchDetailsData?.vehicleDetails?.driverName} ({linkDispatchDetailsData?.vehicleDetails?.driverContact})</div>
+                  </div>
                 </div>
               </div>
 
-              {/* Items and EAL Links */}
-              <div className="mt-6">
-                <h3 className="text-lg font-semibold mb-4">Items & EAL Links</h3>
+              {/* Section: Items & EAL Links */}
+              <div className="px-8 py-8">
+                <h3 className="text-lg font-bold mb-6 text-gray-800">Items & EAL Links</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {linkDispatchDetailsData.items?.map((item, idx) => (
+                    <div key={idx} className="border border-gray-200 rounded-xl p-6 bg-blue-50 mb-4 shadow-sm">
+                      {/* Item Summary */}
+                      <div className="flex justify-between items-center mb-3">
+                        <h4 className="text-md font-bold text-blue-900">
+                          {item?.item?.name}
+                        </h4>
+                        <span className="text-sm text-gray-500">
+                          Quantity: <span className="font-semibold text-gray-700">{item.quantityInCases}</span> cases | Issued: <span className="font-semibold text-green-700">{item.EALIssuedQuantity || 0}</span> cases
+                        </span>
+                      </div>
 
-                {linkDispatchDetailsData.items?.map((item, idx) => (
-                  <div key={idx} className="border border-gray-200 rounded-md p-4 mb-4 bg-blue-100">
-                    {/* Item Summary */}
-                    <div className="flex justify-between items-center mb-2">
-                      <h4 className="text-md font-medium text-gray-800">
-                        {item?.item?.name}
-                      </h4>
-                      <span className="text-sm text-gray-500">
-                        Quantity: {item.quantityInCases} cases | Issued: {item.EALIssuedQuantity || 0} cases
-                      </span>
+                      {/* EAL Links List */}
+                      {item?.EALLinks?.length > 0 ? (
+                        <div className="space-y-2">
+                          {item.EALLinks.map((link, linkIndex) => {
+                            const usedQty = (parseInt(link.serialTo) - parseInt(link.serialFrom) + 1) / item?.item?.bottlesPerCase;
+                            return (
+                              <div
+                                key={linkIndex}
+                                className="bg-white border border-gray-300 rounded-lg px-4 py-3 flex flex-col gap-1 shadow-sm"
+                              >
+                                <div className="flex gap-2 items-center">
+                                  <span className="font-bold text-blue-700 text-xs bg-blue-50 px-2 py-1 rounded">{link.prefix}</span>
+                                  <span className="text-xs text-gray-500">Serials:</span>
+                                  <span className="font-mono text-xs text-gray-800">{link.serialFrom.toString().padStart(10, '0')}</span>
+                                  <span className="text-xs">→</span>
+                                  <span className="font-mono text-xs text-gray-800">{link.serialTo.toString().padStart(10, '0')}</span>
+                                </div>
+                                <div className="text-xs text-gray-500">Used: <span className="font-semibold text-gray-700">{usedQty}</span> cases</div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      ) : (
+                        <p className="text-sm italic text-gray-400">No EALs linked for this item.</p>
+                      )}
                     </div>
-
-                    {/* EAL Links List */}
-                    {item?.EALLinks?.length > 0 ? (
-                      <ul className="space-y-2 text-sm">
-                        {item.EALLinks.map((link, linkIndex) => {
-                          const usedQty = (parseInt(link.serialTo) - parseInt(link.serialFrom) + 1) / item?.item?.bottlesPerCase;
-                          return (
-                            <li
-                              key={linkIndex}
-                              className="bg-white border border-gray-300 rounded px-3 py-2 flex flex-col sm:flex-row justify-between"
-                            >
-                              <div>
-                                <div><strong>Prefix:</strong> {link.prefix}</div>
-                                <div><strong>Serials:</strong> {link.serialFrom.toString().padStart(10, '0')} → {link.serialTo.toString().padStart(10, '0')}</div>
-                              </div>
-                              <div className="text-right mt-2 sm:mt-0">
-                                <div><strong>Used:</strong> {usedQty} cases</div>
-                              </div>
-                            </li>
-                          );
-                        })}
-                      </ul>
-                    ) : (
-                      <p className="text-sm italic text-gray-400">No EALs linked for this item.</p>
-                    )}
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
 
               {/* Modal Footer */}
-              <div className="flex justify-end mt-4">
+              <div className="px-8 pb-8 flex justify-end">
                 <button
                   onClick={() => setLinkDispatchModalOpen(false)}
-                  className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded"
+                  className="px-6 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded font-semibold"
                 >
                   Close
                 </button>

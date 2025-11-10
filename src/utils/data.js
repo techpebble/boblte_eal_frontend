@@ -1,4 +1,4 @@
-import { LuLayoutDashboard, LuFactory, LuBuilding, LuLogOut, LuTruck, LuLink2 } from "react-icons/lu";
+import { LuLayoutDashboard, LuFactory, LuBuilding, LuLogOut, LuTruck, LuTags, LuScanSearch, LuShoppingCart } from "react-icons/lu";
 
 export const SIDE_MENU_DATA = [
     {
@@ -15,20 +15,38 @@ export const SIDE_MENU_DATA = [
     },
     {
         id: "03",
+        label: "EAL Stock",
+        icon: LuTags,
+        path: "/eal-stock"
+    },
+    {
+        id: "04",
         label: "EAL Usage",
         icon: LuFactory,
         path: "/eal-usage"
     },
     {
-        id: "04",
+        id: "05",
+        label: "Finished Stock",
+        icon: LuShoppingCart,
+        path: "/finished-stock"
+    },
+    {
+        id: "06",
         label: "Dispatch",
         icon: LuTruck,
         path: "/dispatch"
     },
     {
-        id: "05",
+        id: "07",
+        label: "Find EAL",
+        icon: LuScanSearch,
+        path: "/find-eal"
+    },
+    {
+        id: "08",
         label: "Logout",
         icon: LuLogOut,
         path: "/logout"
-    },
+    }
 ];

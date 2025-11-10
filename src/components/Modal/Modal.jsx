@@ -1,27 +1,33 @@
 import React from 'react'
 
-function Modal({children, isOpen, onClose, title, styleClass}) {
+function Modal({ children, isOpen, onClose, title, styleClass }) {
 
     if (!isOpen) return null;
-  return (
-    <div className='fixed top-0 right-0 left-0 z-50 flex justify-center items-center h-[calc(100%-1rem)] max-h-full overflow-y-auto overflow-x-hidden bg-black/20 bg-opacity-50'>
-        <div className={`relative p-4 max-w-7xl max-h-full ${styleClass}`}>
-            {/* Model content */}
-            <div className='relative bg-white rounded-lg shadow-sm'>
-                {/* Model header */}
-
-                <div className='flex items-center justify-between p-4 md:p-5 border-b rounded-t border-gray-200'>
-                    <h3 className='text-lg font-medium text-gray-900'>
-                        {title}
-                    </h3>
-                    <button type='button' className='text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white cursor-pointer' onClick={onClose}>
+    return (
+        <div
+            className="fixed inset-0 z-50 flex justify-center items-center bg-black/30 backdrop-blur-sm transition-all duration-200"
+            onClick={e => {
+                if (e.target === e.currentTarget) onClose();
+            }}
+        >
+            <div
+                className={`relative min-w-2 max-w-7xl mx-auto my-8 animate-modal-fade-in ${styleClass}`}
+            >
+                <div className="relative bg-white rounded-xl shadow-2xl border border-gray-100">
+                    {/* Close Icon */}
+                    <button
+                        type="button"
+                        className="absolute top-4 right-4 text-gray-400 hover:text-gray-700 hover:bg-gray-200 rounded-full w-9 h-9 flex items-center justify-center transition z-10"
+                        onClick={onClose}
+                        aria-label="Close"
+                    >
                         <svg
-                            className="w-3 h-3"
+                            className="w-4 h-4"
                             aria-hidden="true"
                             xmlns="http://www.w3.org/2000/svg"
                             fill="none"
                             viewBox="0 0 14 14"
-                            >
+                        >
                             <path
                                 stroke="currentColor"
                                 strokeLinecap="round"
@@ -31,15 +37,23 @@ function Modal({children, isOpen, onClose, title, styleClass}) {
                             />
                         </svg>
                     </button>
-                </div>
-                {/* Model body */}
-                <div className='p-4 md:p-5 space-y-4'>
-                    {children}
+                    <div className="px-4 py-4 space-y-4"
+                        style={{ maxHeight: '90vh', overflowY: 'auto' }}>
+                        {children}
+                    </div>
                 </div>
             </div>
+            <style>{`
+                .animate-modal-fade-in {
+                    animation: modalFadeIn 0.25s cubic-bezier(0.4,0,0.2,1);
+                }
+                @keyframes modalFadeIn {
+                    from { opacity: 0; transform: translateY(20px) scale(0.98); }
+                    to { opacity: 1; transform: translateY(0) scale(1); }
+                }
+            `}</style>
         </div>
-    </div>
-  )
+    )
 }
 
 export default Modal

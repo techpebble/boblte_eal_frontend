@@ -1,4 +1,4 @@
-export const BASE_URL = "https://boblte-eal-api.techpebble.com";
+export const BASE_URL = "http://localhost:8000/";
 
 //utils/apiPaths.js
 export const API_PATHS = {
@@ -15,18 +15,21 @@ export const API_PATHS = {
     },
     EALUSAGE: {
         GET_DATA: 'api/v1/eal_usage',
-        ADD_DATA: 'api/v1/eal_usage'
+        ADD_DATA: 'api/v1/eal_usage',
+        FIND: 'api/v1/eal_usage/find'
     },
     EALDISPATCH: {
-        GET_DATA: 'api/v1/eal_dispatch',
-        ADD_DATA: 'api/v1/eal_dispatch',
-        ADD_EAL_LINK: 'api/v1/eal_dispatch/add_eal_link',
-        REMOVE_EAL_LINK: 'api/v1/eal_dispatch/remove_eal_link'
+        GET_DATA: 'api/v1/dispatch/eal',
+        ADD_EAL_LINK: 'api/v1/dispatch/eal/add_eal_link',
+        REMOVE_EAL_LINK: 'api/v1/dispatch/eal/remove_eal_link'
     },
     DISPATCH: {
         GET_DATA: 'api/v1/dispatch',
         ADD_DATA: 'api/v1/dispatch',
-        UPDATE_DATA: 'api/v1/dispatch'
+        UPDATE_DATA: 'api/v1/dispatch',
+        DELETE_DATA: 'api/v1/dispatch',
+        UPDATE_STATUS: 'api/v1/dispatch/update_status',
+        GET_DISPATCH_BY_ID: 'api/v1/dispatch/get_by_id'
     },
     COMPANY: {
         GET_DATA: 'api/v1/companies',

@@ -15,6 +15,9 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import { Toaster } from "react-hot-toast";
 import Dispatch from "./pages/Dashboard/Dispatch";
 import Logout from "./pages/Auth/Logout";
+import FinishedStock from "./pages/Dashboard/FinishedStock";
+import FindEAL from "./pages/Dashboard/FindEAL";
+import EALStock from "./pages/Dashboard/EALStock";
 
 const App = () => {
   return (
@@ -22,23 +25,27 @@ const App = () => {
       <div>
         <Router>
           <Routes>
-            <Route path="/" element={<Root/>}/>
-            <Route path="/login" exact element={<Login/>}/>
-            <Route path="/logout" exact element={<Logout/>}/>
-            
-            <Route path="/users" exact element={<ProtectedRoute><Users/></ProtectedRoute>}/>
-            <Route path="/dashboard" exact element={<ProtectedRoute><Home/></ProtectedRoute>}/>
-            <Route path="/eal-issuance" exact element={<ProtectedRoute><EALIssuance/></ProtectedRoute>}/>
-            <Route path="/eal-usage" exact element={<ProtectedRoute><EALUsage/></ProtectedRoute>}/>
-            <Route path="/dispatch" exact element={<ProtectedRoute><Dispatch/></ProtectedRoute>}/>
+            <Route path="/" element={<Root />} />
+            <Route path="/login" exact element={<Login />} />
+            <Route path="/logout" exact element={<Logout />} />
+
+            <Route path="/users" exact element={<ProtectedRoute><Users /></ProtectedRoute>} />
+            <Route path="/dashboard" exact element={<ProtectedRoute><Home /></ProtectedRoute>} />
+            <Route path="/eal-issuance" exact element={<ProtectedRoute><EALIssuance /></ProtectedRoute>} />
+            <Route path="/eal-usage" exact element={<ProtectedRoute><EALUsage /></ProtectedRoute>} />
+            <Route path="/finished-stock" exact element={<ProtectedRoute><FinishedStock /></ProtectedRoute>} />
+            <Route path="/dispatch" exact element={<ProtectedRoute><Dispatch /></ProtectedRoute>} />
+            <Route path="/eal-stock" exact element={<ProtectedRoute><EALStock /></ProtectedRoute>} />
+            <Route path="/find-eal" exact element={<ProtectedRoute><FindEAL /></ProtectedRoute>} />
+            <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </Router>
       </div>
-      <Toaster 
+      <Toaster
         toastOptions={{
-          className:"",
-          style:{
-            fontSize:'13px'
+          className: "",
+          style: {
+            fontSize: '13px'
           },
         }}
       />
